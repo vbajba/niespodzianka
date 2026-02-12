@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Czy zostaniesz moją Walentynką?</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#ff758c,#ff7eb3);
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+  position:relative;
+}
+body::before{
+  content:"";
+  position:fixed;
+  width:200%;
+  height:200%;
+  background:radial-gradient(circle,rgba(255,255,255,0.15) 1px,transparent 1px);
+  background-size:50px 50px;
+  animation:sparkle 20s linear infinite;
+  z-index:0;
+}
+@keyframes sparkle{
+  from{transform:translate(0,0)}
+  to{transform:translate(-200px,-200px)}
+}
+header,section{position:relative;z-index:2;}
+h1{
+  font-family:'Dancing Script',cursive;
+  font-size:4rem;
+  margin:30px 0;
+  text-shadow:0 0 20px rgba(255,255,255,0.6);
+}
+.counter{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+.time-box{
+  background:rgba(255,255,255,0.2);
+  padding:12px 18px;
+  border-radius:20px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 20px rgba(255,255,255,0.3);
+}
+.time-box span{
+  display:block;
+  font-size:1.5rem;
+  font-weight:600;
+}
+.gallery{padding:60px 20px;}
+.photos{
+  display:flex;
+  justify-content:center;
+  gap:30px;
+  flex-wrap:wrap;
+}
+.photos img{
+  width:300px;
+  height:360px;
+  object-fit:cover;
+  border-radius:30px;
+  border:3px solid rgba(255,255,255,0.6);
+  box-shadow:0 20px 40px rgba(0,0,0,0.4);
+  transition:0.5s;
+}
+.photos img:hover{
+  transform:scale(1.08);
+}
+.question{
+  padding:80px 20px;
+  position:relative;
+}
+.buttons{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:50px; /* odległość między przyciskami */
+  position:relative;
+  height:70px;
+}
+button{
+  padding:15px 35px;
+  font-size:1.2rem;
+  border:none;
+  border-radius:40px;
+  cursor:pointer;
+  transition:0.3s;
+  z-index:5;
+  position:relative;
+}
+.yes{
+  background:white;
+  color:#ff4e8a;
+  box-shadow:0 0 25px rgba(255,255,255,0.8);
+}
+.no{
+  background:#ff4e8a;
+  color:white;
+}
+.love-modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  opacity:0;
+  visibility:hidden;
+  transition:0.5s;
+  z-index:20;
+}
+.love-modal.active{
+  opacity:1;
+  visibility:visible;
+}
+.love-text{
+  font-family:'Dancing Script',cursive;
+  font-size:3rem;
+  animation:fadeIn 1.5s ease forwards;
+}
+@keyframes fadeIn{
+  from{transform:scale(0.5);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.heart{
+  position:fixed;
+  bottom:-20px;
+  font-size:20px;
+  animation:floatUp linear forwards;
+  pointer-events:none;
+  opacity:0.9;
+  z-index:1;
+}
+@keyframes floatUp{
+  to{transform:translateY(-110vh);opacity:0}
+}
+@media(max-width:768px){
+  h1{font-size:3rem}
+  .photos img{width:90%;height:300px}
+  .buttons{gap:20px;height:90px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Dla Ciebie ❤️</h1>
+<h2>Od 06.01.2022 tworzymy coś wyjątkowego...</h2>
+<div class="counter">
+<div class="time-box"><span id="years">0</span><small>lat</small></div>
+<div class="time-box"><span id="months">0</span><small>mies.</small></div>
+<div class="time-box"><span id="days">0</span><small>dni</small></div>
+<div class="time-box"><span id="hours">0</span><small>godz.</small></div>
+<div class="time-box"><span id="minutes">0</span><small>min.</small></div>
+<div class="time-box"><span id="seconds">0</span><small>sek.</small></div>
+</div>
+</header>
+
+<section class="gallery">
+<h3>Nasze wspomnienia 💕</h3>
+<div class="photos">
+<img src="img/3.jpg">
+<img src="img/4.jpg">
+<img src="img/1.jpg">
+</div>
+</section>
+
+<section class="question">
+<h3>Czy zostaniesz moją Walentynką? 💖</h3>
+<div class="buttons" id="buttonArea">
+<button class="yes" onclick="showLove()">Tak 💕</button>
+<button class="no" id="noBtn" onclick="moveButton()">Nie 😅</button>
+</div>
+</section>
+
+<div class="love-modal" id="loveModal">
+<div class="love-text">Kocham Cię najbardziej na świecie ❤️</div>
+</div>
+
+<script>
+// Licznik
+const startDate=new Date('2022-01-06T00:00:00');
+function updateCounter(){
+  const now=new Date();
+  let years=now.getFullYear()-startDate.getFullYear();
+  let months=now.getMonth()-startDate.getMonth();
+  let days=now.getDate()-startDate.getDate();
+  if(days<0){months--; const prevMonth=new Date(now.getFullYear(),now.getMonth(),0); days+=prevMonth.getDate();}
+  if(months<0){years--;months+=12;}
+  const diff=now-startDate;
+  const hours=Math.floor((diff/(1000*60*60))%24);
+  const minutes=Math.floor((diff/(1000*60))%60);
+  const seconds=Math.floor((diff/1000)%60);
+  document.getElementById('years').textContent=years;
+  document.getElementById('months').textContent=months;
+  document.getElementById('days').textContent=days;
+  document.getElementById('hours').textContent=hours;
+  document.getElementById('minutes').textContent=minutes;
+  document.getElementById('seconds').textContent=seconds;
+}
+setInterval(updateCounter,1000);
+updateCounter();
+
+// Modal miłosny
+function showLove(){
+  document.getElementById('loveModal').classList.add('active');
+}
+
+// Przycisk "Nie"
+function moveButton(){
+  const btn=document.getElementById("noBtn");
+  const area=document.getElementById("buttonArea");
+  const yesBtn=document.querySelector(".yes");
+
+  const maxX=area.clientWidth-btn.offsetWidth;
+  const maxY=area.clientHeight-btn.offsetHeight;
+
+  let x, y;
+  do{
+    x=Math.random()*maxX;
+    y=Math.random()*maxY;
+  }while(Math.abs(x-yesBtn.offsetLeft)<yesBtn.offsetWidth + 20);
+
+  btn.style.position="absolute";
+  btn.style.left=x+"px";
+  btn.style.top=y+"px";
+}
+
+// Serduszka
+function createHeart(){
+  const heart=document.createElement('div');
+  heart.classList.add('heart');
+  heart.innerHTML='❤️';
+  heart.style.left=Math.random()*100+'vw';
+  heart.style.animationDuration=(4+Math.random()*4)+'s';
+  heart.style.fontSize=(15+Math.random()*25)+'px';
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),8000);
+}
+setInterval(createHeart,350);
+</script>
+
+</body>
+</html>
